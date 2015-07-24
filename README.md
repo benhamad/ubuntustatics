@@ -21,7 +21,7 @@ file that list top 10 users of given ubuntu channel.
 
 
 
-**Exampl**
+**Example**
 
     $ ./ubuntustatics.py ubuntu-tn 07-01-2015 07-30-2015
    
