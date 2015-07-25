@@ -20,10 +20,9 @@ def main():
     end_date = date(year, month, day)
 
     # Using the IRC class
-    channel = IRC.IRC(args.channel)
-    channel.GetNumberofMsgPerDate(start_date, end_date)
-    # Save the svg file to 
-    channel.render("./" + args.channel + ".svg")
+    channel = IRC.IRC(args.channel, start_date, end_date)
+    # Top ten users
+    channel.topTenUsers()
    
 
 if __name__ == '__main__':

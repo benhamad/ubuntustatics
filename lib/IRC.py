@@ -8,8 +8,10 @@ import pygal
 
 class IRC():
     """IRC Class"""
-    def __init__(self, channel):
+    def __init__(self, channel, startDate, endDate):
         self.channel = channel
+        self.startDate = startDate
+        self.endDate = endDate
         self.baseUrl = "http://irclogs.ubuntu.com/{}/{:02d}/{:02d}/%23{}.txt"
         self.NickChangingRegex = re.compile("^=== (.*?) is now known as (.*?)$")
         self.NickName = re.compile("<(.*?)>")  
@@ -23,7 +25,7 @@ class IRC():
             return None
         return r.iter_lines()
 
-    def NumberOfmsgPerDay(self, url):
+    def NumberOfmsgPerDayPerUser(self, url):
         r =  self.GetIRCLines(url)
         nicks = collections.Counter()
         if r != None:
@@ -34,38 +36,45 @@ class IRC():
                     try:
                         nicks[NewNick] = nicks.pop(oldNick)
                     except KeyError:
-                        # This happen if if someone with no previous msg change his nick.
+                        # This happen if someone with no previous msg change his nick.
                         nicks[NewNick]=0
+
                 elif "<" in l :
                     nick = self.NickName.findall(l)[0]
                     if nick in nicks:
                         # If nick existe increment msg count.
                         nicks[nick] += 1
                     else:
-                        # Else add the nick to counter.
+                        # Add the nick to counter.
                         nicks[nick]=1
         return nicks
 
-    def GetNumberofMsgPerDate(self, startDate, endDate):
-        """ Return number of msg per user between startDate and endDate"""
-        self.startDate = startDate
-        self.endDate = endDate
+
+    def topTenUsers(self):
+        """ Top ten users between startDate and endDate"""
         NumberOfmsgPerYear = collections.Counter()
-        numberOfDays, i = (endDate - startDate).days , 0
-        for year, month, day in daterange(startDate, endDate):
+        numberOfDays, i = (self.endDate - self.startDate).days , 0
+
+        # Count number of msg for each user from starDate until endDate
+        for year, month, day in daterange(self.startDate, self.endDate):
             url = self.baseUrl.format(year, month, day, self.channel)
-            NumberOfmsgPerYear +=  self.NumberOfmsgPerDay(url)
+            NumberOfmsgPerYear +=  self.NumberOfmsgPerDayPerUser(url)
             # Progress bar 
             i+= 1
             progressbar(i, numberOfDays)
-        # Return first 10 users
-        self.d =  NumberOfmsgPerYear.most_common(10)
-        return NumberOfmsgPerYear
 
-    def render(self, fileName):
+        # Only first 10 users
+        d =  NumberOfmsgPerYear.most_common(10)
+
+        # Prepare the pie chart
         pie_chart = pygal.Pie()
-        pie_chart.title = self.channel +" users partictipation "+ str(self.startDate)+" untill "+str(self.endDate)
-        with open(fileName, 'w') as f:
-            for person, numberofmsg in self.d:
-                pie_chart.add(person, numberofmsg)
+        pie_chart.title ="{} users partictipation form {} untill {}".format(self.channel,
+                                                                            str(self.startDate),
+                                                                            str(self.endDate)
+                                                                            )
+        for person, numberofmsg in d:
+            pie_chart.add(person, numberofmsg)
+
+        # Save it
+        with open("{}-top-10.svg".format(self.channel), 'w') as f:
             f.write(pie_chart.render())
