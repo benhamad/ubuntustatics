@@ -13,9 +13,8 @@ class IRC():
         self.startDate = startDate
         self.endDate = endDate
         self.baseUrl = "http://irclogs.ubuntu.com/{}/{:02d}/{:02d}/%23{}.txt"
-        self.NickChangingRegex = re.compile("^=== (.*?) is now known as (.*?)$")
+        self.NickChangingRegex = re.compile("=== (.*?) is now known as (.*?)(?:$|\n)")
         self.NickName = re.compile("<(.*?)>")  
-
 
     def GetIRCLines(self,url):
         """Return a generator that contain all lines in the requested URL""" 
@@ -30,16 +29,17 @@ class IRC():
         nicks = collections.Counter()
         if r != None:
             for l in r:
-                if "is now known" in l:
+                if "is now known" in l and l.startswith("==="):
                     # Check if someone change his nick 
                     oldNick, NewNick = self.NickChangingRegex.findall(l)[0]
                     try:
                         nicks[NewNick] = nicks.pop(oldNick)
                     except KeyError:
-                        # This happen if someone with no previous msg change his nick.
+                        # If someone with no previous msg change his nick.
                         nicks[NewNick]=0
 
-                elif "<" in l :
+
+                elif "] <" in l :
                     nick = self.NickName.findall(l)[0]
                     if nick in nicks:
                         # If nick existe increment msg count.
