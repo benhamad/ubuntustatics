@@ -1,5 +1,5 @@
 UbuntuStatics Ubuntu IRC channel static generator
-Copyright © 2015 Chaker Benhamed
+Copyright © 2015 Ubuntu-tn
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

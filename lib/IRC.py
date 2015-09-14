@@ -2,7 +2,7 @@ import sys
 import re
 import collections
 import requests
-from helper import daterange, progressbar
+from . import helper
 import pygal
 
 
@@ -56,15 +56,15 @@ class IRC():
         numberOfDays, i = (self.endDate - self.startDate).days , 0
 
         # Count number of msg for each user from starDate until endDate
-        for year, month, day in daterange(self.startDate, self.endDate):
+        for year, month, day in helper.daterange(self.startDate, self.endDate):
             url = self.baseUrl.format(year, month, day, self.channel)
             NumberOfmsgPerYear +=  self.NumberOfmsgPerDayPerUser(url)
             # Progress bar 
             i+= 1
-            progressbar(i, numberOfDays)
+            helper.progressbar(i, numberOfDays)
 
         # Only first 10 users
-        d =  NumberOfmsgPerYear.most_common(10)
+        d = NumberOfmsgPerYear.most_common(10)
 
         # Prepare the pie chart
         pie_chart = pygal.Pie()
