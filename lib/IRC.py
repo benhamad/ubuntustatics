@@ -12,7 +12,7 @@ class IRC():
         self.channel = channel
         self.startDate = startDate
         self.endDate = endDate
-        self.baseUrl = "http://irclogs.ubuntu.com/{}/{:02d}/{:02d}/%23{}.txt"
+        self.baseUrl = "https://irclogs.ubuntu.com/{}/{:02d}/{:02d}/%23{}.txt"
         self.NickChangingRegex = re.compile("=== (.*?) is now known as (.*?)(?:$|\n)")
         self.NickName = re.compile("<(.*?)>")  
 
